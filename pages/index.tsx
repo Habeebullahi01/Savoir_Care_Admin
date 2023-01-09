@@ -3,8 +3,16 @@ import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import style from "../styles/index.module.scss";
+import LoginComponent from "../components/Login";
+import { useContext } from "react";
+import { AuthContext } from "../components/AuthContext";
 
 const Home: NextPage = () => {
+  const { auth, setAuth } = useContext(AuthContext);
+  if (!auth) {
+    return <LoginComponent redPath={"/"} />;
+  }
+
   return (
     <div className="">
       <Head>

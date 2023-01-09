@@ -5,14 +5,95 @@ import Link from "next/link";
 import { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../../../components/AuthContext";
 import axios from "axios";
+import Login from "../../../components/Login";
+import ProductEdit from "../../../components/ProductEdit";
+
+type productData = {
+  name: string;
+  imageURL: string;
+  quantity: number;
+  price: number;
+  tags: string | string[];
+  description: string;
+  _id: string;
+};
 
 let id: string | string[];
+const editProduct = (p: productData) => {
+  return (
+    <div>
+      <form
+        method="post"
+        action={
+          `https://e-store-server.cyclic.app/products/updateProduct/` + p._id
+        }
+        // action={`http://localhost:4000/products/updateProduct/${productDetails._id}`}
+        encType="application/x-www-form-urlencoded"
+      >
+        <label htmlFor="productName">Product Name</label>
+        <input
+          id="productName"
+          name="productName"
+          type={"text"}
+          required
+          defaultValue={p.name}
+        />
+        <label htmlFor="imageURL">Image URL</label>
+        <input
+          id="imageURL"
+          name="imageURL"
+          type={"url"}
+          required
+          defaultValue={p.imageURL}
+        />
+        <label htmlFor="description">Description</label>
+        <textarea
+          id="description"
+          name="description"
+          required
+          defaultValue={p.description}
+        />
+        <label htmlFor="tags">Tags</label>
+        {/* <input id="tags" type="text" list="tagList" multiple /> */}
+        <select id="tags" name="tags" defaultValue={p.tags} multiple>
+          <option value={"skincare"}>Skincare</option>
+          <option value={"pedicure"}>Pedicure</option>
+          <option value={"manicure"}>Manicure</option>
+          <option value={"hair"}>Hair</option>
+        </select>
+        <label htmlFor="price">Price</label>
+        <input
+          type="number"
+          name="price"
+          id="price"
+          required
+          min={1}
+          defaultValue={p.price}
+        />
+        <label htmlFor="quantity">Quantity</label>
+        <input
+          type="number"
+          name="quantity"
+          id="quantity"
+          required
+          min={1}
+          defaultValue={p.quantity}
+        />
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+  );
+};
 
 const Product = () => {
   const [productDetails, setProductDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const { auth, setAuth } = useContext(AuthContext);
   const router = useRouter();
+  let path: string;
+  if (router.isReady) {
+    path = router.asPath;
+  }
 
   useEffect(() => {
     setLoading(true);
@@ -36,11 +117,25 @@ const Product = () => {
           if (err.response) {
             console.log(err.response.data);
           }
+          setLoading(false);
+          return;
         });
     };
-    getProductDetails();
+    if (auth) {
+      getProductDetails();
+    } else {
+      // return (<Link href={`/auth/login`}></Link>)
+    }
   }, [id, auth, router.query]);
 
+  if (!auth) {
+    // return <Link href={`/auth/login`}>Login Please</Link>;
+    return (
+      <>
+        <Login redPath={path} />
+      </>
+    );
+  }
   if (loading) {
     return (
       <>
@@ -103,7 +198,13 @@ const Product = () => {
               href={"/products/[id]/editProduct"}
               as={`/products/${productDetails._id}/editProduct`}
             >
-              <button>Edit this product</button>
+              <button
+              // onClick={() => {
+              //   return editProduct(productDetails);
+              // }}
+              >
+                Edit this product
+              </button>
             </Link>
           </div>
         ) : (
@@ -121,3 +222,78 @@ const Product = () => {
 };
 
 export default Product;
+
+// const editProduct = ({data}) => {
+//   return (
+//     <div>
+//       <form
+//         method="post"
+//         action={`https://creepy-plum-elk.cyclic.app/products/updateProduct/${data._id}`}
+//         // action={`http://localhost:4000/products/updateProduct/${data._id}`}
+//         encType="application/x-www-form-urlencoded"
+//       >
+//         <label htmlFor="productName">Product Name</label>
+//         <input
+//           id="productName"
+//           name="productName"
+//           type={"text"}
+//           required
+//           defaultValue={data.name}
+//         />
+//         <label htmlFor="imageURL">Image URL</label>
+//         <input
+//           id="imageURL"
+//           name="imageURL"
+//           type={"url"}
+//           required
+//           defaultValue={data.imageURL}
+//         />
+//         <label htmlFor="description">Description</label>
+//         <textarea
+//           id="description"
+//           name="description"
+//           required
+//           defaultValue={data.description}
+//         />
+//         <label htmlFor="tags">Tags</label>
+//         {/* <input id="tags" type="text" list="tagList" multiple /> */}
+//         <select id="tags" name="tags" defaultValue={data.tags} multiple>
+//           {/* {tagList.map((t) => {
+//            if (data.tags.includes(t)) {
+//               return (
+//                 <option value={t} selected>
+//                   {t}
+//                 </option>
+//               );
+//             } else {
+//               <option value={t}>{t}</option>;
+//             }
+//           })}  */}
+//           <option value={"skincare"}>Skincare</option>
+//           <option value={"pedicure"}>Pedicure</option>
+//           <option value={"manicure"}>Manicure</option>
+//           <option value={"hair"}>Hair</option>
+//         </select>
+//         <label htmlFor="price">Price</label>
+//         <input
+//           type="number"
+//           name="price"
+//           id="price"
+//           required
+//           min={1}
+//           defaultValue={data.price}
+//         />
+//         <label htmlFor="quantity">Quantity</label>
+//         <input
+//           type="number"
+//           name="quantity"
+//           id="quantity"
+//           required
+//           min={1}
+//           defaultValue={data.quantity}
+//         />
+//         <button type="submit">Submit</button>
+//       </form>
+//     </div>
+//   );
+// }

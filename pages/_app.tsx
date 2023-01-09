@@ -3,6 +3,7 @@ import type { AppProps } from "next/app";
 import Nav from "../components/Nav";
 import { useEffect, useState } from "react";
 import { AuthContextProvider } from "../components/AuthContext";
+
 function MyApp({ Component, pageProps }: AppProps) {
   const [view, setView]: [string, Function] = useState("mobile");
   useEffect(() => {
@@ -15,6 +16,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       changeView();
     });
   }, [view]);
+
   return (
     <>
       <AuthContextProvider>

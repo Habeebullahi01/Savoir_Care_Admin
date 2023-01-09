@@ -1,13 +1,26 @@
 import { NextPage } from "next";
+import LoginComponent from "../../components/Login";
+import { useContext } from "react";
+import { AuthContext } from "../../components/AuthContext";
+import { useRouter } from "next/router";
 
 const AddProduct: NextPage = () => {
+  const router = useRouter();
+  const { auth } = useContext(AuthContext);
+  let path: string;
+  if (router.isReady) {
+    path = router.asPath;
+  }
+  if (!auth) {
+    return <LoginComponent redPath={path} />;
+  }
   return (
     <div>
       <h1>Add Product</h1>
       <form
         method="post"
-        action="http://localhost:4000/products/addProduct"
-        // action="https://creepy-plum-elk.cyclic.app/products/addProduct"
+        // action="http://localhost:4000/products/addProduct"
+        action="https://e-store-server.cyclic.app/products/addProduct"
         encType="application/x-www-form-urlencoded"
       >
         <label htmlFor="productName">Product Name</label>
