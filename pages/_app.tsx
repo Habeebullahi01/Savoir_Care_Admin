@@ -3,6 +3,7 @@ import type { AppProps } from "next/app";
 import Nav from "../components/Nav";
 import { useEffect, useState } from "react";
 import { AuthContextProvider } from "../components/AuthContext";
+import { CookiesProvider } from "react-cookie";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const [view, setView]: [string, Function] = useState("mobile");
@@ -20,8 +21,10 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <>
       <AuthContextProvider>
-        <Nav view={view} />
-        <Component {...pageProps} />
+        <CookiesProvider>
+          <Nav view={view} />
+          <Component {...pageProps} />
+        </CookiesProvider>
       </AuthContextProvider>
     </>
   );

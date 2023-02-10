@@ -3,6 +3,7 @@ import { useState, useContext } from "react";
 import { AuthContext } from "./AuthContext";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { useCookies } from "react-cookie";
 
 const LoginComponent = ({ redPath }) => {
   const router = useRouter();
@@ -10,6 +11,7 @@ const LoginComponent = ({ redPath }) => {
   const [authError, setAuthError] = useState(null);
   const [name, setName] = useState("");
   const [password, setPass] = useState("");
+  const [cookie, setCookie] = useCookies(["auth"]);
 
   const handleName = (e) => {
     setName(e.target.value);
@@ -31,7 +33,13 @@ const LoginComponent = ({ redPath }) => {
       .then((res) => {
         console.log(res);
         if (res.data.auth) {
-          setAuth(res.data.token);
+          // setAuth(res.data.token);
+          setCookie("auth", res.data.token, {
+            path: "/",
+            maxAge: 3600,
+            sameSite: true,
+          });
+          router.push(redPath);
           // router.push("/");
         }
 
@@ -60,7 +68,6 @@ const LoginComponent = ({ redPath }) => {
               // console.log({ email: name, password: password });
               // console.log(name);
               getAuthToken(name, password);
-              router.push(redPath);
               e.preventDefault();
             }}
             className={`flex flex-col items-center mt-[5rem]`}

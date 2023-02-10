@@ -6,11 +6,16 @@ import style from "../styles/index.module.scss";
 import LoginComponent from "../components/Login";
 import { useContext } from "react";
 import { AuthContext } from "../components/AuthContext";
+import { parseCookies } from "../helpers/";
 
-const Home: NextPage = () => {
+const Home: NextPage = (data: { data: { auth: string } }) => {
   const { auth, setAuth } = useContext(AuthContext);
-  if (!auth) {
+  // if (!auth) {
+  //   return <LoginComponent redPath={"/"} />;
+  // }
+  if (data.data.auth === "null" || !data.data.auth) {
     return <LoginComponent redPath={"/"} />;
+    // console.log(typeof data.data.auth);
   }
 
   return (
@@ -53,6 +58,22 @@ const Home: NextPage = () => {
       </div>
     </div>
   );
+};
+
+Home.getInitialProps = async ({ req, res }) => {
+  const data = parseCookies(req);
+  if (res) {
+    if (Object.keys(data).length === 0 && data.constructor === Object) {
+      res
+        .writeHead(301, {
+          location: "/",
+        })
+        .end();
+    }
+  }
+  return {
+    data: data && data,
+  };
 };
 
 export default Home;
