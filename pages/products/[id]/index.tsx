@@ -7,6 +7,7 @@ import { AuthContext } from "../../../components/AuthContext";
 import axios from "axios";
 import Login from "../../../components/Login";
 import ProductEdit from "../../../components/ProductEdit";
+import { parseCookies } from "../../../helpers";
 
 type productData = {
   name: string;
@@ -85,7 +86,7 @@ const editProduct = (p: productData) => {
   );
 };
 
-const Product = () => {
+const Product = (data: { data: { auth: string } }) => {
   const [productDetails, setProductDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const { auth, setAuth } = useContext(AuthContext);
@@ -106,7 +107,7 @@ const Product = () => {
       await axios
         .get(`https://e-store-server.cyclic.app/products/${id}`, {
           headers: {
-            Authorization: auth,
+            Authorization: data.data.auth,
           },
         })
         .then((res) => {
@@ -121,20 +122,24 @@ const Product = () => {
           return;
         });
     };
-    if (auth) {
-      getProductDetails();
-    } else {
-      // return (<Link href={`/auth/login`}></Link>)
-    }
+    // if (auth) {
+    getProductDetails();
+    // } else {
+    // return (<Link href={`/auth/login`}></Link>)
+    // }
   }, [id, auth, router.query]);
 
-  if (!auth) {
-    // return <Link href={`/auth/login`}>Login Please</Link>;
-    return (
-      <>
-        <Login redPath={path} />
-      </>
-    );
+  // if (!auth) {
+  //   // return <Link href={`/auth/login`}>Login Please</Link>;
+  //   return (
+  //     <>
+  //       <Login redPath={path} />
+  //     </>
+  //   );
+  // }
+  if (data.data.auth === "null" || !data.data.auth) {
+    return <Login redPath={"/"} />;
+    // console.log(typeof data.data.auth);
   }
   if (loading) {
     return (
@@ -219,6 +224,22 @@ const Product = () => {
       </>
     );
   }
+};
+Product.getInitialProps = async ({ req, res }) => {
+  const data = parseCookies(req);
+
+  if (res) {
+    if (Object.keys(data).length === 0 && data.constructor === Object) {
+      res
+        .writeHead(301, {
+          location: "/",
+        })
+        .end();
+    }
+  }
+  return {
+    data: data && data,
+  };
 };
 
 export default Product;

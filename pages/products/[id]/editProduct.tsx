@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import LoginComponent from "../../../components/Login";
 import ProductEdit from "../../../components/ProductEdit";
+import { parseCookies } from "../../../helpers";
 
 type productData = {
   name: string;
@@ -16,7 +17,7 @@ type productData = {
   _id: string;
 };
 
-const EditProduct = () => {
+const EditProduct = (prop: { data: { auth: string } }) => {
   const [productDetails, setProductDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const { auth, setAuth } = useContext(AuthContext);
@@ -37,7 +38,7 @@ const EditProduct = () => {
       await axios
         .get(`https://e-store-server.cyclic.app/products/${id}`, {
           headers: {
-            Authorization: auth,
+            Authorization: prop.data.auth,
           },
         })
         .then((res) => {
@@ -62,8 +63,13 @@ const EditProduct = () => {
     return <ProductEdit {...p} />;
   };
 
-  if (!auth) {
+  // if (!auth) {
+  //   return <LoginComponent redPath={path} />;
+  // }
+  if (prop.data.auth === "null" || !prop.data.auth) {
     return <LoginComponent redPath={path} />;
+  } else {
+    setAuth(true);
   }
   if (loading) {
     return <p>Loading...</p>;
@@ -139,4 +145,24 @@ const EditProduct = () => {
     return <p>Can't get product</p>;
   }
 };
+
+EditProduct.getInitialProps = async (context) => {
+  const data = parseCookies(context.req);
+
+  if (context.res) {
+    if (Object.keys(data).length === 0 && data.constructor === Object) {
+      context.res
+        .writeHead(301, {
+          location: "/",
+        })
+        .end();
+    }
+  }
+  return { data: data && data };
+};
+
+// export function getStaticProps() {
+
+// }
+
 export default EditProduct;

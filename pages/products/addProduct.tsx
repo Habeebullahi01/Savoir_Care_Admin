@@ -3,15 +3,19 @@ import LoginComponent from "../../components/Login";
 import { useContext } from "react";
 import { AuthContext } from "../../components/AuthContext";
 import { useRouter } from "next/router";
+import { parseCookies } from "../../helpers";
 
-const AddProduct: NextPage = () => {
+const AddProduct: NextPage = (prop: { prop: { auth: string } }) => {
   const router = useRouter();
   const { auth } = useContext(AuthContext);
   let path: string;
   if (router.isReady) {
     path = router.asPath;
   }
-  if (!auth) {
+  // if (!auth) {
+  //   return <LoginComponent redPath={path} />;
+  // }
+  if (prop.prop.auth === "null" || !prop.prop.auth) {
     return <LoginComponent redPath={path} />;
   }
   return (
@@ -45,6 +49,21 @@ const AddProduct: NextPage = () => {
       </form>
     </div>
   );
+};
+
+AddProduct.getInitialProps = async (context) => {
+  const data = parseCookies(context.req);
+
+  if (context.res) {
+    if (Object.keys(data).length === 0 && data.constructor === Object) {
+      context.res
+        .writeHead(301, {
+          location: "/",
+        })
+        .end();
+    }
+  }
+  return { prop: data };
 };
 
 export default AddProduct;
