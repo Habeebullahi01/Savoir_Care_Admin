@@ -3,6 +3,7 @@ import { useState, useContext } from "react";
 import { AuthContext } from "./AuthContext";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import Head from "next/head";
 import { useCookies } from "react-cookie";
 
 const LoginComponent = ({ redPath }) => {
@@ -11,7 +12,7 @@ const LoginComponent = ({ redPath }) => {
   const [authError, setAuthError] = useState(null);
   const [name, setName] = useState("");
   const [password, setPass] = useState("");
-  const [cookie, setCookie] = useCookies(["auth"]);
+  const [cookie, setCookie] = useCookies(["admin_auth"]);
 
   const handleName = (e) => {
     setName(e.target.value);
@@ -34,7 +35,7 @@ const LoginComponent = ({ redPath }) => {
         console.log(res);
         if (res.data.auth) {
           // setAuth(res.data.token);
-          setCookie("auth", res.data.token, {
+          setCookie("admin_auth", res.data.token, {
             path: "/",
             maxAge: 3600,
             sameSite: true,
@@ -60,6 +61,11 @@ const LoginComponent = ({ redPath }) => {
 
   return (
     <>
+      <Head>
+        <title>Admin E-store | Login</title>
+        <meta />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
       <div className={`w-full flex flex-row h-[90vh]`}>
         <div className={`form-holder w-full sm:w-1/4 h-full flex flex-col`}>
           <form
