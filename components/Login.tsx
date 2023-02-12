@@ -18,11 +18,14 @@ const LoginComponent = ({ redPath }) => {
     setName(e.target.value);
   };
   const handlePassword = (e) => {
+    if (authError) {
+      setAuthError(null);
+    }
     setPass(e.target.value);
   };
   const getAuthToken = (email: string, password: string) => {
     axios
-      .post("https://e-store-server.cyclic.app/auth/login", {
+      .post("https://e-store-server.cyclic.app/auth/admin/login", {
         // .post(`${API_URL}auth/login`, {
         email: email,
         password: password,
