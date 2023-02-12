@@ -2,8 +2,9 @@ import { NextRouter, useRouter } from "next/router";
 import Image from "next/image";
 import { GetServerSideProps, NextPage } from "next";
 import Link from "next/link";
+import Head from "next/head";
 import { useState, useEffect, useContext } from "react";
-import { AuthContext } from "../../../components/AuthContext";
+// import { AuthContext } from "../../../components/AuthContext";
 import axios from "axios";
 import Login from "../../../components/Login";
 import ProductEdit from "../../../components/ProductEdit";
@@ -22,74 +23,76 @@ type productData = {
 let id: string | string[];
 const editProduct = (p: productData) => {
   return (
-    <div>
-      <form
-        method="post"
-        action={
-          `https://e-store-server.cyclic.app/products/updateProduct/` + p._id
-        }
-        // action={`http://localhost:4000/products/updateProduct/${productDetails._id}`}
-        encType="application/x-www-form-urlencoded"
-      >
-        <label htmlFor="productName">Product Name</label>
-        <input
-          id="productName"
-          name="productName"
-          type={"text"}
-          required
-          defaultValue={p.name}
-        />
-        <label htmlFor="imageURL">Image URL</label>
-        <input
-          id="imageURL"
-          name="imageURL"
-          type={"url"}
-          required
-          defaultValue={p.imageURL}
-        />
-        <label htmlFor="description">Description</label>
-        <textarea
-          id="description"
-          name="description"
-          required
-          defaultValue={p.description}
-        />
-        <label htmlFor="tags">Tags</label>
-        {/* <input id="tags" type="text" list="tagList" multiple /> */}
-        <select id="tags" name="tags" defaultValue={p.tags} multiple>
-          <option value={"skincare"}>Skincare</option>
-          <option value={"pedicure"}>Pedicure</option>
-          <option value={"manicure"}>Manicure</option>
-          <option value={"hair"}>Hair</option>
-        </select>
-        <label htmlFor="price">Price</label>
-        <input
-          type="number"
-          name="price"
-          id="price"
-          required
-          min={1}
-          defaultValue={p.price}
-        />
-        <label htmlFor="quantity">Quantity</label>
-        <input
-          type="number"
-          name="quantity"
-          id="quantity"
-          required
-          min={1}
-          defaultValue={p.quantity}
-        />
-        <button type="submit">Submit</button>
-      </form>
-    </div>
+    <>
+      <div>
+        <form
+          method="post"
+          action={
+            `https://e-store-server.cyclic.app/products/updateProduct/` + p._id
+          }
+          // action={`http://localhost:4000/products/updateProduct/${productDetails._id}`}
+          encType="application/x-www-form-urlencoded"
+        >
+          <label htmlFor="productName">Product Name</label>
+          <input
+            id="productName"
+            name="productName"
+            type={"text"}
+            required
+            defaultValue={p.name}
+          />
+          <label htmlFor="imageURL">Image URL</label>
+          <input
+            id="imageURL"
+            name="imageURL"
+            type={"url"}
+            required
+            defaultValue={p.imageURL}
+          />
+          <label htmlFor="description">Description</label>
+          <textarea
+            id="description"
+            name="description"
+            required
+            defaultValue={p.description}
+          />
+          <label htmlFor="tags">Tags</label>
+          {/* <input id="tags" type="text" list="tagList" multiple /> */}
+          <select id="tags" name="tags" defaultValue={p.tags} multiple>
+            <option value={"skincare"}>Skincare</option>
+            <option value={"pedicure"}>Pedicure</option>
+            <option value={"manicure"}>Manicure</option>
+            <option value={"hair"}>Hair</option>
+          </select>
+          <label htmlFor="price">Price</label>
+          <input
+            type="number"
+            name="price"
+            id="price"
+            required
+            min={1}
+            defaultValue={p.price}
+          />
+          <label htmlFor="quantity">Quantity</label>
+          <input
+            type="number"
+            name="quantity"
+            id="quantity"
+            required
+            min={1}
+            defaultValue={p.quantity}
+          />
+          <button type="submit">Submit</button>
+        </form>
+      </div>{" "}
+    </>
   );
 };
 
-const Product = (data: { data: { auth: string } }) => {
+const Product = (data: { data: { admin_auth: string } }) => {
   const [productDetails, setProductDetails] = useState(null);
   const [loading, setLoading] = useState(true);
-  const { auth, setAuth } = useContext(AuthContext);
+  // const { auth, setAuth } = useContext(AuthContext);
   const router = useRouter();
   let path: string;
   if (router.isReady) {
@@ -107,7 +110,7 @@ const Product = (data: { data: { auth: string } }) => {
       await axios
         .get(`https://e-store-server.cyclic.app/products/${id}`, {
           headers: {
-            Authorization: data.data.auth,
+            Authorization: data.data.admin_auth,
           },
         })
         .then((res) => {
@@ -127,7 +130,7 @@ const Product = (data: { data: { auth: string } }) => {
     // } else {
     // return (<Link href={`/auth/login`}></Link>)
     // }
-  }, [id, auth, router.query]);
+  }, [id, router.query]);
 
   // if (!auth) {
   //   // return <Link href={`/auth/login`}>Login Please</Link>;
@@ -137,8 +140,8 @@ const Product = (data: { data: { auth: string } }) => {
   //     </>
   //   );
   // }
-  if (data.data.auth === "null" || !data.data.auth) {
-    return <Login redPath={"/"} />;
+  if (data.data.admin_auth === "null" || !data.data.admin_auth) {
+    return <Login redPath={path} />;
     // console.log(typeof data.data.auth);
   }
   if (loading) {
@@ -151,6 +154,11 @@ const Product = (data: { data: { auth: string } }) => {
   if (!loading && productDetails) {
     return (
       <>
+        <Head>
+          <title>Admin E-store | Product</title>
+          <meta />
+          <link rel="icon" href="/favicon.ico" />
+        </Head>
         {productDetails ? (
           <div
             className={`flex flex-col md:flex-row items-center justify-evenly my-4`}
@@ -238,7 +246,7 @@ Product.getInitialProps = async ({ req, res }) => {
     }
   }
   return {
-    data: data && data,
+    data: data,
   };
 };
 

@@ -8,12 +8,12 @@ import { useContext } from "react";
 import { AuthContext } from "../components/AuthContext";
 import { parseCookies } from "../helpers/";
 
-const Home: NextPage = (data: { data: { auth: string } }) => {
+const Home: NextPage = (data: { data: { admin_auth: string } }) => {
   const { auth, setAuth } = useContext(AuthContext);
   // if (!auth) {
   //   return <LoginComponent redPath={"/"} />;
   // }
-  if (data.data.auth === "null" || !data.data.auth) {
+  if (data.data.admin_auth === "null" || !data.data.admin_auth) {
     return <LoginComponent redPath={"/"} />;
     // console.log(typeof data.data.auth);
   }
@@ -21,7 +21,7 @@ const Home: NextPage = (data: { data: { auth: string } }) => {
   return (
     <div className="">
       <Head>
-        <title>Admin E-store</title>
+        <title>Admin E-store | Home</title>
         <meta />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -66,13 +66,13 @@ Home.getInitialProps = async ({ req, res }) => {
     if (Object.keys(data).length === 0 && data.constructor === Object) {
       res
         .writeHead(301, {
-          location: "/",
+          location: "/auth/login",
         })
         .end();
     }
   }
   return {
-    data: data && data,
+    data: data,
   };
 };
 
